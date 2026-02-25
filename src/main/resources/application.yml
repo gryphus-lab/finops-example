@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+finops:
+  provider: aws
+  budget:
+    threshold: 10000
+  report:
+    frequency: WEEKLY
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:h2:mem:finops}
+    username: ${DB_USER:sa}
+    password: ${DB_PASS:}

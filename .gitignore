@@ -1,3 +1,9 @@
+target/
+*.log
+.idea/
+.vscode/
+*.iml
+.DS_Store
 # Python
 __pycache__/
 *.py[cod]

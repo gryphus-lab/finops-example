@@ -9,6 +9,17 @@ A comprehensive FinOps (Financial Operations) example project demonstrating best
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
+# finops-example
+
+A Java + Spring Boot FinOps (Financial Operations) example demonstrating cloud cost optimization, monitoring, and financial governance patterns implemented as a service.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Examples](#examples)
@@ -18,75 +29,91 @@ A comprehensive FinOps (Financial Operations) example project demonstrating best
 
 ## Overview
 
-This project provides practical examples and tools for implementing FinOps principles in your cloud infrastructure. It includes cost tracking, optimization recommendations, and financial reporting capabilities.
+This repository contains examples and reference code for applying FinOps principles in a Java microservice: cost collection, analysis, reporting, and automation hooks. The service is built with Spring Boot and packaged with Maven for easy deployment.
 
 ## Features
 
-- 📊 Cloud cost tracking and analysis
-- 💰 Budget monitoring and alerts
-- 📈 Cost optimization recommendations
-- 🎯 Resource tagging and organization
-- 📋 Financial reporting and dashboards
-- 🔄 Automated cost analysis workflows
-- 📉 Trend analysis and forecasting
+- Cloud cost collection adapters (AWS/Azure/GCP)
+- Budget monitoring and alerting endpoints
+- Cost optimization recommendations
+- Tag-based cost allocation utilities
+- Exportable financial reports (CSV/PDF)
+- Automated daily analysis workflows
 
 ## Prerequisites
 
-- Python 3.8+
-- Cloud provider CLI (AWS/Azure/GCP)
+- Java 17+ (LTS)
+- Maven 3.8+
 - Git
-- Docker (optional, for containerized deployment)
+- Cloud provider CLI (AWS/Azure/GCP) for optional integrations
+- Docker (optional, for containerization)
 
 ## Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/gryphus-lab/finops-example.git
-   cd finops-example
-   ```
 
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+git clone https://github.com/gryphus-lab/finops-example.git
+cd finops-example
+```
 
-3. Configure your cloud provider credentials:
-   ```bash
-   # For AWS
-   aws configure
-   
-   # For Azure
-   az login
-   
-   # For GCP
-   gcloud auth application-default login
-   ```
+2. Build the project with Maven:
+
+```bash
+mvn -U clean package
+```
+
+3. Run the Spring Boot application locally:
+
+```bash
+mvn spring-boot:run
+# or
+java -jar target/finops-example-0.0.1-SNAPSHOT.jar
+```
+
+4. (Optional) Build Docker image:
+
+```bash
+docker build -t gryphus-lab/finops-example:latest .
+```
 
 ## Configuration
 
-Create a `.env` file in the root directory with your configuration:
+Configuration is managed via Spring Boot `application.yml` (or `application.properties`) and environment variables. Example `application.yml` snippet:
 
+```yaml
+server:
+   port: 8080
+
+finops:
+   provider: aws
+   budget:
+      threshold: 10000
+   report:
+      frequency: WEEKLY
+
+spring:
+   datasource:
+      url: ${DB_URL:jdbc:h2:mem:finops}
+      username: ${DB_USER:sa}
+      password: ${DB_PASS:}
 ```
-CLOUD_PROVIDER=aws
-BUDGET_THRESHOLD=10000
-ALERT_EMAIL=your-email@example.com
-REPORT_FREQUENCY=weekly
-```
+
+You can also set configuration via environment variables, e.g. `FINOPS_PROVIDER=aws` or typical Spring Boot mappings.
 
 ## Usage
 
+- Start the service (`mvn spring-boot:run`) and open `http://localhost:8080/actuator/health` for basic health.
+- API endpoints (examples):
+
+   - `GET /api/v1/costs?provider=aws&period=2026-02` — fetch cost summary
+   - `POST /api/v1/optimize` — run optimization suggestions (dry-run)
+   - `GET /api/v1/reports/latest` — download latest generated report
+
+Example curl:
+
 ```bash
-# Analyze current cloud costs
-python analyze_costs.py
-
-# Generate financial report
-python generate_report.py --format pdf
-
-# Run optimization recommendations
-python optimize.py --dry-run
-
-# Monitor budget status
-python monitor_budget.py
+curl -s "http://localhost:8080/api/v1/costs?provider=aws&period=2026-02" | jq
 ```
 
 ## Project Structure
@@ -94,59 +121,61 @@ python monitor_budget.py
 ```
 finops-example/
 ├── README.md
-├── requirements.txt
-├── config/
-│   ├── default.yaml
-│   └── providers/
+├── pom.xml
 ├── src/
-│   ├── analyzers/
-│   ├── reporters/
-│   ├── optimizers/
-│   └── utils/
-├── examples/
-│   └── sample_reports/
-└── tests/
-    └── unit/
+│   ├── main/
+│   │   ├── java/com/gryphuslab/finops/
+│   │   │   ├── controller/
+│   │   │   ├── service/
+│   │   │   ├── model/
+│   │   │   └── adapter/  # provider-specific adapters (aws, azure, gcp)
+│   │   └── resources/
+│   │       ├── application.yml
+│   │       └── templates/
+│   └── test/java/
+└── docker/
+      └── Dockerfile
 ```
 
 ## Examples
 
-### Example 1: Analyze AWS Costs
+### Example 1: Fetch AWS cost summary
 
 ```bash
-python -m src.analyzers.aws_analyzer --month 2026-02
+curl "http://localhost:8080/api/v1/costs?provider=aws&period=2026-02"
 ```
 
-### Example 2: Generate Budget Report
+### Example 2: Trigger optimization recommendations
 
 ```bash
-python -m src.reporters.report_generator --provider aws --output budget_report.pdf
+curl -X POST "http://localhost:8080/api/v1/optimize" -H 'Content-Type: application/json' -d '{"scope":"account","dryRun":true}'
 ```
 
-### Example 3: Get Optimization Suggestions
+### Example 3: Download latest report
 
 ```bash
-python -m src.optimizers.recommendation_engine --threshold high
+curl -O "http://localhost:8080/api/v1/reports/latest"
 ```
 
 ## Best Practices
 
-1. **Regular Monitoring**: Review costs weekly to catch anomalies early
-2. **Resource Tagging**: Use consistent tagging strategies for better cost allocation
-3. **Budget Alerts**: Set up notifications for budget exceedances
-4. **Right-Sizing**: Regularly analyze resource utilization
-5. **Reserved Instances**: Leverage long-term commitments for stable workloads
-6. **Automation**: Implement automated cost optimization policies
+1. **Run regular analyses**: schedule daily or weekly jobs to detect anomalies early.
+2. **Centralize tagging**: enforce consistent tags for ownership/cost-center and validate ingested data.
+3. **Use budgets & alerts**: wire Spring events to notification channels (email, Slack, PagerDuty).
+4. **Automate right-sizing**: integrate utilization signals into recommendation pipelines.
+5. **Secure integrations**: use least-privilege credentials for cloud adapters and store secrets in a vault.
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions welcome. Suggested next steps:
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/improvement`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/improvement`)
-5. Submit a Pull Request
+2. Create a feature branch (`git checkout -b feature/my-change`)
+3. Implement and test your changes
+4. Run `mvn test` and ensure checks pass
+5. Open a Pull Request describing your changes
+
+If you'd like, I can scaffold a basic Spring Boot service and `pom.xml` for you.
 
 ## License
 
