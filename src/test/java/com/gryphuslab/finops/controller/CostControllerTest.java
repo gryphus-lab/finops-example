@@ -12,13 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FinopsApplication.class)
 @AutoConfigureMockMvc
-public class CostControllerTest {
+class CostControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
     @Test
-    public void getCosts_shouldReturn200() throws Exception {
+    void getCosts_shouldReturn200() throws Exception {
         mvc.perform(get("/api/v1/costs"))
                 .andExpect(status().isOk());
     }
