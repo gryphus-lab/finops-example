@@ -31,10 +31,22 @@ coverage.xml
 .mypy_cache/
 
 # IDEs and editors
+# VS Code
 .vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+
+# IntelliJ IDEA
+# IntelliJ project files
 .idea/
-*.sublime-workspace
-*.sublime-project
+!/.idea/inspectionProfiles/
+*.iml
+*.iws
+*.ipr
+*.iuser
+.idea_modules/
 
 # Jupyter
 .ipynb_checkpoints
