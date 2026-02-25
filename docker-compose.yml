@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  finops-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gryphus-lab/finops-example:latest
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTS=
